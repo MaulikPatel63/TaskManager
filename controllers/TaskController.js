@@ -13,10 +13,18 @@ const taskAdd = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "User Dode not exists" });
     }
+    if (req.user.role === "user") {
+      const taskCount = await Task.countDocuments({ user: req.user.id });
+      if (taskCount >= 10) {
+        return res
+          .status(403)
+          .json({ message: "User can only create 10 tasks" });
+      }
+    }
     let categories = await Category.find({
-        name: category,
+      name: category,
     });
-    
+
     // Create Task
     const task = new Task({
       title,
@@ -41,7 +49,10 @@ const taskAdd = async (req, res) => {
 
 const taskGet = async (req, res) => {
   try {
-    let task = await Task.find({ user: req.user.id });
+    let task = await Task.find({ user: req.user.id }).populate(
+      "category",
+      "name"
+    );
     if (!task) {
       return res.status(400).json({ message: "Task Dode not exists" });
     }
@@ -75,11 +86,53 @@ const taskGetByTitle = async (req, res) => {
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
     }
-    let task = await Task.find({ title: { $regex: title, $options: "i" } });
+    let task = await Task.find({
+      title: { $regex: title, $options: "i" },
+      user: req.user.id,
+    });
     if (!task) {
       return res.status(400).json({ message: "Task Dode not exists" });
     }
     return res.status(200).json({ message: "Task Gets!", data: task });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", err: error.message });
+  }
+};
+
+const taskGetByStatus = async (req, res) => {
+  try {
+    // Retrieve query parameters
+    const status = req.query.status;
+    const dueDate = req.query.dueDate ? new Date(req.query.dueDate) : null;
+    const sortBy = req.query.sortBy || "dueDate";
+    const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
+
+    // Build the query object
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
+    if (dueDate) {
+      query.dueDate = dueDate;
+    }
+
+    // Fetch tasks with advanced querying
+    const tasks = await Task.find(query)
+      .sort({ [sortBy]: sortOrder }) // Sort based on query parameter
+      .exec();
+
+    // If no tasks found, return a message
+    if (tasks.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No tasks found matching the criteria" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Tasks fetched successfully!", data: tasks });
   } catch (error) {
     return res
       .status(500)
@@ -92,7 +145,7 @@ const taskGetByCategory = async (req, res) => {
     const { id } = req.params;
 
     // Use a regular expression to match any part of the name, case-insensitive
-    const tasks = await Task.find({ category: id }).populate(
+    const tasks = await Task.find({ category: id, user: req.user.id }).populate(
       "category",
       "name"
     );
@@ -115,21 +168,32 @@ const taskGetByCategory = async (req, res) => {
 const taskUpdate = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, dueDate } = req.body;
+    const { title, description, dueDate, status, category } = req.body;
 
     let task = await Task.findById(id);
     if (!task) {
       return res.status(400).json({ message: "Task Does not exists" });
     }
-
-    if (!title || !description || !dueDate) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (category) {
+      const existingCategory = await Category.findOne({ name: category });
+      if (!existingCategory) {
+        return res.status(404).json({ message: "Category does not exist." });
+      }
+      task.category = existingCategory._id; // Set the category ID to the task
     }
-
     // Create Task
-    task.title = title;
-    task.description = description;
-    task.dueDate = dueDate;
+    if (title) {
+      task.title = title;
+    }
+    if (description) {
+      task.description = description;
+    }
+    if (dueDate) {
+      task.dueDate = dueDate;
+    }
+    if (status) {
+      task.status = status;
+    }
 
     await task.save();
 
@@ -170,4 +234,5 @@ module.exports = {
   taskDelete,
   taskGetByTitle,
   taskGetByCategory,
+  taskGetByStatus,
 };

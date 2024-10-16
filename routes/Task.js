@@ -7,12 +7,14 @@ const {
   taskDelete,
   taskGetByTitle,
   taskGetByCategory,
+  taskGetByStatus,
 } = require("../controllers/TaskController");
 
 const router = express.Router();
 
 router.post("/task-add", taskAdd);
 router.get("/task-get", taskGet);
+router.get("/task-get-status", taskGetByStatus);
 router.get("/task-get/:id", taskGetByID);
 router.get("/task-get-category/:id", taskGetByCategory);
 router.get("/task-get-title/", taskGetByTitle);

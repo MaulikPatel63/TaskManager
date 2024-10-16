@@ -7,7 +7,10 @@ router.use("/api/v1/auth", require("./Auth"));
 //! Task Router
 router.use("/api/v1/task", protectRoute, require("./Task"));
 
-//! Task Router
+//! Category Router
 router.use("/api/v1/category", protectRoute, require("./Category"));
+
+//! Admin Task Router
+router.use("/api/v1/admintask", protectRoute, require("./AdminTask"));
 
 module.exports = router;

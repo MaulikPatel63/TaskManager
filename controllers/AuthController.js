@@ -164,7 +164,7 @@ const resetPassword = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    res.clearCookie("jwt-airbnb");
+    res.clearCookie("jwt-taskmanager");
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
@@ -181,6 +181,25 @@ const authCheck = async (req, res) => {
   }
 };
 
+const updateRole = async (req, res) => {
+  try {
+    const { role, userId } = req.body;
+    if (!role || !userId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.role = role;
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.log("Error in update role controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -188,4 +207,5 @@ module.exports = {
   resetPassword,
   logout,
   authCheck,
+  updateRole,
 };

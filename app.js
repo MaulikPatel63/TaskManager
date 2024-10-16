@@ -6,9 +6,6 @@ const cors = require("cors");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 
-// const authRoutes = require('./routes/auth');
-// const taskRoutes = require('./routes/tasks');
-
 const app = express();
 
 // Middleware
