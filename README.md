@@ -68,7 +68,7 @@ Follow these steps to set up the project locally:
 
 ---
 
-## 📡** API Endpoints**
+## 📡 API Endpoints
 
 ####  1. **User Registration:**
  - ##### POST /api/v1/auth/signup
