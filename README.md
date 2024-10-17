@@ -101,9 +101,10 @@ Follow these steps to set up the project locally:
 
 #### 6. **Delete Task:**
    - ##### GET /api/v1/task/task-delete
-
+   - 
 ## 📦 Postman Collection
-- A Postman collection is included in the `[docs](http://https://github.com/MaulikPatel63/TaskManager/blob/server/docs/TaskManager.postman_collection.json "docs")` directory for testing the API endpoints.
+- A Postman collection is included in the [docs](https://github.com/MaulikPatel63/TaskManager/blob/server/docs/TaskManager.postman_collection.json) directory for testing the API endpoints.
+
 
 ## 🌍 Deployment
 The backend is deployed on Heroku (link to your live app).
