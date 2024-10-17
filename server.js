@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const app = require("./app");
+const app = require("./src/app");
 const { connectDB } = require("./config/db");
 const ENV_VARS = require("./config/envVars");
 
